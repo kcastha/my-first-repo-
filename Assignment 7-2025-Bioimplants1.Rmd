@@ -1,0 +1,170 @@
+---
+title: "Assignment 7-bioimplants1"
+author: "Astha K C"
+date: "4/8/2025"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+Angelica is a research statistician working for a management consulting firm in Salt Lake City. Over the years, the firm has developed a strong reputation in human resource consulting. Recently, a large medical device manufacturer, BioImplants, Inc. (or BI), has approached the company for advice on preventing employee turnover. Angelica, with quite a bit of HR consulting experience, was assigned to the project.
+
+BI is a multinational corporation with over $1 billion in annual sales. While employee attrition is a problem in US businesses generally, it is particularly pronounced in growing and dynamic industries like healthcare. It is expensive for companies to rehire a position, costing by some estimates about 21% of the annual salary of the original position.
+
+Angelica interviewed the Director of HR at BI, Stan Devolta, who indicated that the company has been successful in large part due to the work of the HR department and the company's commitment to its employees. It is widely recognized as a desirable place to work. However, Stan admitted that some departments within the company may be better than others at retaining employees, and that employee satisfaction is not universally high.
+
+Mr. Devolta emphasized that his ultimate goal is to get recommendations for how BI can improve attrition, along with forecasts of improvement and cost savings after implementing the recommendations. He provided Angelica with a sample of the company's HR data.
+
+There is some time pressure. The CEO of BI wants a specific plan for employee retention within a month. Mr. Devolta has therefore stipulated a tight schedule for the analytics project: two weeks. He wants to have time to evaluate the results, revise the analytics if necessary, and fine tune the messaging. 
+
+The analytics problem for this project is classification, with a outcome representing observed employee attrition. The company appears to have sufficient historical data to address the business problem (it has invested heavily in its data infrastructure in the last several years). However, there is missing data. Thus, one of the assumptions for the project is that the existing data contains sufficient information to model the outcome. Another assumption, of course, is that the basic conditions leading to attrition don't change in the near future—that historical data will be representative of future data.
+
+Based on the conversation with Mr. Devolta, Angelica suspects that the amount of overtime could be related to turnover (as suggested by the HR literature). But she makes no assumptions and wants the data to inform her of the underlying relationships.
+
+
+## Description of Data
+
+- *age*:   age of employee in years.	
+- *gender*: Male/Female                     
+- *monthly_income*: salary per month in $.          
+- *num_companies_worked*: number of companies at which the employee has previously worked.
+- *over_time*:  indicator variable for whether the employee has worked more than 40 hours per week.   
+- *years_at_company*:  number of years the employee has worked at the company.
+- *attrition*: indicator for whether the employee left the company in 2016.
+
+## Load data and packages
+```{r}
+library(tidyverse)
+library(caret)
+bi <- read_csv("bioimplants.csv")
+bi <- bi %>% mutate(gender = as.factor(gender),
+                    over_time = as.factor(over_time),
+                    attrition = as.factor(attrition))
+
+```
+
+## Questions
+
+## Q1 (0.5 points)
+What is the average employee attrition rate at BI?  (0.5 points)
+```{r}
+table(bi$attrition) %>% prop.table
+```
+
+The average employee attrition rate at BI is 16.5%.
+
+## Q2  Linear probability model. (3.5 points) 
+
+
+### Part a. 
+Estimate a linear probability model for attrition at the company. Based on the estimates answer the below questions. (1 point)
+```{r}
+lm_model <- lm(ifelse(attrition == "yes",1,0) ~., data = bi)
+
+# Create dummy variable for attrition
+bi$attrition_dummy <- ifelse(bi$attrition == "Yes", 1, 0)
+
+lm_model <- lm(attrition_dummy ~ age + gender + monthly_income + 
+               num_companies_worked + over_time + years_at_company, data = bi)
+summary(lm_model)
+```
+
+
+### Part b. 
+What is the effect of `num_companies_worked` on an employee's probability of leaving the company? Comment on the magnitude and statistical significance.  (0.5 point)
+> Answer
+
+The coefficient of num_compnies_worked is 0.02, this means that each additional company worked increases the probability of attrition by about 2 percentage points. The effect is statistacially significant since the p-value is less than 0.05.
+
+
+### Part c. 
+Are higher tenured employees more likely to leave the company? Comment on the magnitude and statistical significance. (0.5 point)
+> Answer
+
+The coefficient is negative(0.002) this means that higher tenured employees are less likely to leave the company. Each additional year reduces the chance of leaving by 0.2 percentage points. Since the p-value is 0.24, the result is not statistically significant.This means we cannot confidently conclude that tenure affects the likelihood of leaving the company based on this model.
+
+
+### Part d. 
+The company is considering assigning overtime to one of its employees (employee details below). What is the probability this employee will leave the company with and without overtime? (1.5 point)
+    - age: 34 years
+    - gender: Male
+    - monthly_income: $4,000  
+    - num_companies_worked: 2
+    - years_at_company: 2
+    
+```{r} 
+beta_lm<-coef(lm_model)
+X0<- c(1,34,1,4000,2,0,2) # without overtime
+X1<- c(1,34,1,4000,2,1,2) # with overtime
+
+# probabilities
+sum(beta_lm*X0) # without overtime
+sum(beta_lm*X1) # with overtime
+```
+> Answer
+
+Without overtime there is 14.81% chance of leaving
+With overtime there is 37.96% chance of leaving
+
+This shows that if overtime time is assigned to the employee this increases the probability of attrition by 23.15 percentage point.
+
+## Q3 (6 points)
+
+### Part a.
+Estimate a logistic regression for attrition at the company. Based on the estimates answer the below questions. (2 point)
+```{r}
+levels(bi$attrition)
+glm_model <- glm(attrition ~age + gender + monthly_income + 
+                 num_companies_worked + over_time + years_at_company, data = bi,family = binomial)
+summary(glm_model) 
+```
+### Part b
+What is the effect of `gender` on an employee's odds of leaving the company? Comment on the statistical significance. (1 point)
+> Answer
+
+The coefficient for gender male is 0.24 this means that male employees are more likely to leave than females. Since the p-value is above 0.05(i.e 0.18), the result is not statistically significant. We cannot draw a conclusion from this model.
+
+ 
+### Part c
+Do employees with more prior experience (`num_companies_worked`) leave with a greater probability? If so, how much do the odds of attrition change with an additional year of prior experience (express this as a percentage increase or decrease)? (1 point)
+> Answer
+
+```{r}
+# the effect on odds is (exp(beta)-1)*100 % 
+beta_glm<-coef(glm_model)
+(exp(beta_glm)-1)*100
+
+```
+Yes, employees with more prior experience (num_companies_worked) leave with a greater probability.
+Each additional company  worked at increases the odds of attrition by approximately 13.11% keeping other factors constant.  0.123 is the is the efect of log of odds which is directly a log of odds . But 13.11 is the precentage for odds. 
+log odds of attrition with (num_companies_worked = x+1) - log odds of attrition with (numcompanies_worked = x) = 0.123
+
+
+### Part d
+The company is considering assigning overtime to one of its employees (employee details below). What is the probability this employee will leave the company with and without overtime? (2 points)
+    - age: 50 years
+    - gender: Female
+    - monthly_income: $8,000  
+    - num_companies_worked: 8
+    - years_at_company: 8
+    
+> Answer
+
+```{r}
+beta_glm<-coef(glm_model)
+X0<- c(1,50,0,8000,8,0,8) # without overtime
+X1<- c(1,50,0,8000,8,1,8) # with overtime
+
+#logits
+logit_X0<-sum(beta_glm*X0) # without overtime
+logit_X1<-sum(beta_glm*X1) # with overtime
+
+#probabilities
+exp(logit_X0)/(1+exp(logit_X0)) # without overtime
+exp(logit_X1)/(1+exp(logit_X1)) # with overtime
+```
+Without overtime 5.5% chance of leaving 
+with overtime 22.8% chance of leaving, this means that this increases the probability of attrition by 17.3 percentage point.
