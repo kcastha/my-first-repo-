@@ -12,7 +12,7 @@
 <meta name="author" content="Astha K C" />
 
 
-<title>Assignment 7-bioimplants1</title>
+<title>Stastics assignment 7-bioimplants1</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -349,7 +349,7 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Assignment 7-bioimplants1</h1>
+<h1 class="title toc-ignore">Stastics assignment 7-bioimplants1</h1>
 <h4 class="author">Astha K C</h4>
 <h4 class="date">4/8/2025</h4>
 
@@ -424,6 +424,7 @@ company in 2016.</li>
 <div id="load-data-and-packages" class="section level2">
 <h2>Load data and packages</h2>
 <pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## Warning: package &#39;dplyr&#39; was built under R version 4.4.3</code></pre>
 <pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
 ## ✔ dplyr     1.1.4     ✔ readr     2.1.5
 ## ✔ forcats   1.0.0     ✔ stringr   1.5.1
@@ -455,9 +456,6 @@ company in 2016.</li>
 <pre class="r"><code>bi &lt;- bi %&gt;% mutate(gender = as.factor(gender),
                     over_time = as.factor(over_time),
                     attrition = as.factor(attrition))</code></pre>
-</div>
-<div id="questions" class="section level2">
-<h2>Questions</h2>
 </div>
 <div id="q1-0.5-points" class="section level2">
 <h2>Q1 (0.5 points)</h2>
@@ -512,7 +510,7 @@ summary(lm_model)</code></pre>
 <p>What is the effect of <code>num_companies_worked</code> on an
 employee’s probability of leaving the company? Comment on the magnitude
 and statistical significance. (0.5 point) &gt; Answer</p>
-<p>The coefficient of num_compnies_worked is 0.028, this means that each
+<p>The coefficient of num_compnies_worked is 0.02, this means that each
 additional company worked increases the probability of attrition by
 about 2 percentage points. The effect is statistacially significant
 since the p-value is less than 0.05.</p>
@@ -619,7 +617,10 @@ beta_glm&lt;-coef(glm_model)
 <p>Yes, employees with more prior experience (num_companies_worked)
 leave with a greater probability. Each additional company worked at
 increases the odds of attrition by approximately 13.11% keeping other
-factors constant.</p>
+factors constant. 0.123 is the is the efect of log of odds which is
+directly a log of odds . But 13.11 is the precentage for odds. log odds
+of attrition with (num_companies_worked = x+1) - log odds of attrition
+with (numcompanies_worked = x) = 0.123</p>
 </div>
 <div id="part-d" class="section level3">
 <h3>Part d</h3>
@@ -647,6 +648,7 @@ exp(logit_X0)/(1+exp(logit_X0)) # without overtime</code></pre>
 <p>Without overtime 5.5% chance of leaving with overtime 22.8% chance of
 leaving, this means that this increases the probability of attrition by
 17.3 percentage point.</p>
+<p>I am writing this to simple try out in guthub</p>
 </div>
 </div>
 
