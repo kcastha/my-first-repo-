@@ -1,5 +1,5 @@
 ---
-title: "Assignment 7-bioimplants1"
+title: "Statistics bioimplants1"
 author: "Astha K C"
 date: "4/8/2025"
 output: html_document
@@ -168,3 +168,4 @@ exp(logit_X1)/(1+exp(logit_X1)) # with overtime
 ```
 Without overtime 5.5% chance of leaving 
 with overtime 22.8% chance of leaving, this means that this increases the probability of attrition by 17.3 percentage point.
+
